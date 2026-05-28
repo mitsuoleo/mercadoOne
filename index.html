@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mercadoOne - Sistema de Gestão Integrado para Varejo de Médio Porte</title>
+    <meta name="description" content="Apresentação de viabilidade comercial e técnica do mercadoOne: Combate à baixa lucratividade no varejo médio por meio de engenharia de software integrada.">
+
+    <!-- Google Fonts: Manrope -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+
+    <style>
+        /* ===========================================
+           1. CSS CUSTOM PROPERTIES (ELECTRIC STUDIO THEME)
+           =========================================== */
+        :root {
+            --bg-dark: #070708;
+            --bg-white: #ffffff;
+            --accent-blue: #2563eb;
+            --accent-blue-hover: #1d4ed8;
+            --accent-blue-light: #eff6ff;
+            --accent-blue-border: rgba(37, 99, 235, 0.2);
+            --text-dark: #0f172a;
+            --text-light: #f8fafc;
+            --text-muted: #64748b;
+            
+            --font-display: 'Manrope', sans-serif;
+            --font-body: 'Manrope', sans-serif;
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.8s;
+        }
+
+        /* ===========================================
+           2. BASE RESET & MANDATORY FIXED 16:9 STAGE
+           =========================================== */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: var(--bg-dark);
+            font-family: var(--font-body);
+            color: var(--text-dark);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Full-window deck viewport */
+        .deck-viewport {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            background: var(--bg-dark);
+        }
+
+        /* Fixed 16:9 design canvas */
+        .deck-stage {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            transform-origin: 0 0;
+            background: var(--bg-white);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Slides stack inside the fixed stage */
+        .slide {
+            position: absolute;
+            inset: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            display: block;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            background: var(--bg-white);
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .slide.active,
+        .slide.visible {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 1;
+        }
+
+        img,
+        video,
+        canvas,
+        svg {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Print support */
+        @media print {
+            html,
+            body {
+                width: 1920px;
+                height: auto;
+                overflow: visible;
+                background: #fff;
+            }
+
+            .deck-viewport {
+                position: static;
+                overflow: visible;
+                background: #fff;
+            }
+
+            .deck-stage {
+                position: static;
+                width: auto;
+                height: auto;
+                transform: none !important;
+                background: none;
+            }
+
+            .slide {
+                position: relative;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                width: 1920px;
+                height: 1080px;
+                break-after: page;
+                page-break-after: always;
+            }
+
+            .slide:last-child {
+                break-after: auto;
+                page-break-after: auto;
+            }
+
+            .deck-controls, 
+            .edit-hotzone,
+            .edit-toggle,
+            .slide-counter {
+                display: none !important;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+        }
+
+        /* ===========================================
+           3. DESIGN SYSTEM (ELECTRIC STUDIO ACCENTS)
+           =========================================== */
+        
+        /* Layout Structure */
+        .split-layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Left Editorial Panel (White) */
+        .left-panel {
+            flex: 1.1;
+            background: var(--bg-white);
+            padding: 80px 96px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        /* Right High-Impact Panel (Electric Blue) */
+        .right-panel {
+            flex: 0.9;
+            background: var(--accent-blue);
+            padding: 80px 96px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background grid/pattern overlay on the right blue panel */
+        .right-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0.08;
+            background-image: linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Decorative vertical accent bar on the left split edge */
+        .accent-bar {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 8px;
+            height: 100%;
+            background: var(--accent-blue);
+            opacity: 0.15;
+        }
+
+        /* Top Brand Header Chrome */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-blue);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .brand-name {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-dark);
+            letter-spacing: -1px;
+        }
+
+        .brand-name span {
+            color: var(--accent-blue);
+        }
+
+        /* Typography & Spacing */
+        .eyebrow {
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--accent-blue);
+            margin-bottom: 24px;
+            display: inline-block;
+        }
+
+        .title {
+            font-size: 68px;
+            font-weight: 800;
+            line-height: 1.15;
+            color: var(--text-dark);
+            letter-spacing: -2px;
+            margin-bottom: 28px;
+        }
+
+        .title span {
+            color: var(--accent-blue);
+        }
+
+        .subtitle {
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--text-muted);
+            line-height: 1.55;
+            max-width: 720px;
+        }
+
+        /* Content Blocks / Lists */
+        .points-list {
+            margin-top: 32px;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .point-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .point-bullet {
+            width: 28px;
+            height: 28px;
+            background: var(--accent-blue-light);
+            border: 1px solid var(--accent-blue-border);
+            color: var(--accent-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+
+        .point-content {
+            font-size: 20px;
+            line-height: 1.5;
+            color: var(--text-dark);
+        }
+
+        .point-content strong {
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        /* Meta Information Footer (Left) */
+        .meta-container {
+            display: flex;
+            gap: 48px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 32px;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .meta-label {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .meta-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        /* Right Panel Elements (Cards & Visual Highlights) */
+        .right-panel-content {
+            width: 100%;
+            z-index: 2;
+        }
+
+        .right-title {
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--text-light);
+            margin-bottom: 36px;
+            letter-spacing: -1px;
+        }
+
+        .right-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            transition: transform 0.3s var(--ease-out-expo), background 0.3s ease;
+        }
+
+        .right-card:hover {
+            transform: translateX(12px);
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        .card-num {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-light);
+            opacity: 0.6;
+        }
+
+        .card-text {
+            color: var(--text-light);
+        }
+
+        .card-heading {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .card-desc {
+            font-size: 15px;
+            opacity: 0.85;
+            line-height: 1.4;
+            font-weight: 400;
+        }
+
+        /* Quote Callout Slide Layout */
+        .quote-container {
+            max-width: 800px;
+        }
+
+        .quote-text {
+            font-size: 42px;
+            font-weight: 700;
+            line-height: 1.3;
+            color: var(--text-dark);
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .quote-author {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--accent-blue);
+        }
+
+        /* Grid Pattern overlay for right panel */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: left;
+            color: var(--text-light);
+        }
+
+        .stat-number {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #ffffff, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        /* Mockup Image Layout */
+        .screenshot-container {
+            width: 100%;
+            max-width: 620px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            background: var(--bg-dark);
+            transform: scale(0.95);
+            transition: transform 0.5s var(--ease-out-expo);
+            z-index: 2;
+        }
+
+        .screenshot-container:hover {
+            transform: scale(1) translateY(-5px);
+        }
+
+        .screenshot-img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .screenshot-caption {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 12px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Table components for slide content */
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 24px;
+            font-size: 18px;
+        }
+
+        .custom-table th {
+            text-align: left;
+            padding: 16px;
+            border-bottom: 2px solid var(--text-dark);
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .custom-table td {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            color: var(--text-muted);
+        }
+
+        .custom-table tr:hover td {
+            color: var(--text-dark);
+            background: var(--accent-blue-light);
+        }
+
+        .custom-table-dark {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 16px;
+            color: var(--text-light);
+        }
+
+        .custom-table-dark th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            font-weight: 700;
+            opacity: 0.9;
+        }
+
+        .custom-table-dark td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.8;
+        }
+
+        /* ===========================================
+           4. TRANSITIONS & ENTRANCE ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+
+        /* Trigger transitions when the slide becomes visible */
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide.visible .reveal-right {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Sequential delays */
+        .left-panel .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .left-panel .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .left-panel .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .left-panel .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .left-panel .reveal:nth-child(5) { transition-delay: 0.5s; }
+
+        .right-panel-content .reveal-right:nth-child(1) { transition-delay: 0.2s; }
+        .right-panel-content .reveal-right:nth-child(2) { transition-delay: 0.35s; }
+        .right-panel-content .reveal-right:nth-child(3) { transition-delay: 0.5s; }
+        .right-panel-content .reveal-right:nth-child(4) { transition-delay: 0.65s; }
+
+        /* ===========================================
+           5. PRESENTATION CHROME & CONTROLS
+           =========================================== */
+        .slide-counter {
+            position: fixed;
+            left: 36px;
+            bottom: 30px;
+            z-index: 1000;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .deck-controls {
+            position: fixed;
+            right: 36px;
+            bottom: 22px;
+            z-index: 1000;
+            display: flex;
+            gap: 12px;
+        }
+
+        .control-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: rgba(15, 23, 42, 0.1);
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn:hover {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        /* Dynamic Progress Bar (top of deck) */
+        .progress-bar-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: rgba(15, 23, 42, 0.05);
+            z-index: 2000;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--accent-blue);
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           6. INLINE EDITOR STYLING
+           =========================================== */
+        .edit-hotzone {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            z-index: 10000;
+            cursor: pointer;
+        }
+
+        .edit-toggle {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.2s ease;
+            z-index: 10001;
+        }
+
+        .edit-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .edit-toggle.show,
+        .edit-toggle.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .edit-toggle.active {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        [contenteditable="true"] {
+            outline: 2px dashed var(--accent-blue);
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .toast {
+            position: fixed;
+            top: 36px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: #0f172a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s var(--ease-out-expo);
+            z-index: 15000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Progress Indicator Bar -->
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Edit Hotzone and Button -->
+    <div class="edit-hotzone"></div>
+    <button class="edit-toggle" id="editToggle" title="Modo Edição (Atalho: E)">✏️</button>
+
+    <!-- Slide counter bottom-left -->
+    <div class="slide-counter" id="slideCounter">Slide 1 de 12</div>
+
+    <div class="deck-viewport">
+        <main class="deck-stage" id="deckStage">
+
+            <!-- ===========================================
+               SLIDE 01: CAPA (TITLE SLIDE)
+               =========================================== -->
+            <section class="slide" id="slide-1">
+                <div class="split-layout">
+                    <!-- Left Side: Core Metadata -->
+                    <div class="left-panel">
+                        <div class="accent-bar"></div>
+                        
+                        <div class="brand reveal">
+                            <div class="brand-icon">🛒</div>
+                            <div class="brand-name">mercado<span>One</span></div>
+                        </div>
+
+                        <div>
+                            <span class="eyebrow reveal" contenteditable="false">Projeto de Sistema de Informação</span>
+                            <h1 class="title reveal" contenteditable="true">Gestão Integrada.<br>Resultados Reais.</h1>
+                            <p class="subtitle reveal" contenteditable="true">
+                                A solução tecnológica definitiva para combater a baixa lucratividade e otimizar a operação de mercados de pequeno e médio porte.
+                            </p>
+                        </div>
+
+                        <div class="meta-container reveal">
+                            <div class="meta-item">
+                                <span class="meta-label">Apresentado para</span>
+                                <span class="meta-value" contenteditable="true">Banca Acadêmica & Investidores</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Foco Estratégico</span>
+                                <span class="meta-value" contenteditable="true">Rentabilidade & Rigor Técnico</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Spotlight & Pillars -->
+                    <div class="right-panel">
+                        <div class="right-panel-content">
+                            <h2 class="right-title reveal-right" contenteditable="true">Pilares da Solução</h2>
+                            
+                            <div class="right-card reveal-right">
+                                <span class="card-num">01</span>
+                                <div class="card-text">
+                                    <h3 class="card-heading" contenteditable="true">Frente de Caixa (PDV)</h3>
+                                    <p class="card-desc" contenteditable="true">Alta resiliência, transações instantâneas (< 1s) e modo offline completo por até 8 horas.</p>
+                                </div>
+                            </div>
+
+                            <div class="right-card reveal-right">
+                                <span class="card-num">02</span>
+                                <div class="card-text">
+                                    <h3 class="card-heading" contenteditable="true">Gestão Inteligente</h3>
+                                    <p class="card-desc" contenteditable="true">Análise de reposição por Curva ABC e controle absoluto de margens, perdas e validade.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+               SLIDE 02: O PROBLEMA CENTRAL
+               =========================================== -->
+            <section class="slide" id="slide-2">
+                <div class="split-layout">
+                    <div class="left-panel">
+                        <div class="accent-bar"></div>
+                        <div class="brand">
+                            <div class="brand-icon">🛒</div>
+                            <div class="brand-name">mercado<span>One</span></div>
+                        </div>
+
+                        <div>
+                            <span class="eyebrow reveal">A Realidade do Mercado</span>
+                            <h2 class="title reveal">Por que mercados<br><span>perdem lucratividade?</span></h2>
+                            <p class="subtitle reveal">
+                                A gestão manual ou fracionada gera ineficiências invisíveis que corroem diretamente a margem líquida do varejista médio.
+                            </p>
+                            <ul class="points-list">
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">1</span>
+                                    <span class="point-content" contenteditable="true"><strong>Ruptura de Gôndola:</strong> Perda de vendas por falta de reposição no momento correto.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">2</span>
+                                    <span class="point-content" contenteditable="true"><strong>Perdas por Validade:</strong> Falta de acompanhamento e venda indevida de itens vencidos.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">3</span>
+                                    <span class="point-content" contenteditable="true"><strong>Desvios Financeiros:</strong> Incertezas no fechamento de caixa e quebra de estoque não registrada.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="meta-container reveal">
+                            <div class="meta-item">
+                                <span class="meta-label">Desafio</span>
+                                <span class="meta-value">Fragmentação Operacional</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-panel">
+                        <div class="right-panel-content">
+                            <h2 class="right-title reveal-right">O Custo da Ineficiência</h2>
+                            
+                            <div class="stat-grid">
+                                <div class="stat-box reveal-right">
+                                    <div class="stat-number">30%</div>
+                                    <div class="stat-label">Das perdas originam de itens vencidos</div>
+                                </div>
+                                <div class="stat-box reveal-right">
+                                    <div class="stat-number">12%</div>
+                                    <div class="stat-label">De faturamento perdido por ruptura</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+               SLIDE 03: ISHIKAWA DIAGRAM
+               =========================================== -->
+            <section class="slide" id="slide-3">
+                <div class="split-layout">
+                    <div class="left-panel">
+                        <div class="accent-bar"></div>
+                        <div class="brand">
+                            <div class="brand-icon">🛒</div>
+                            <div class="brand-name">mercado<span>One</span></div>
+                        </div>
+
+                        <div>
+                            <span class="eyebrow reveal">Engenharia de Qualidade</span>
+                            <h2 class="title reveal">O Diagnóstico<br><span>Causa-Raiz</span></h2>
+                            <p class="subtitle reveal">
+                                Usando o <strong>Diagrama de Ishikawa</strong>, mapeamos as 6 dimensões operacionais que causam a baixa rentabilidade do negócio.
+                            </p>
+                            <ul class="points-list">
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">M</span>
+                                    <span class="point-content" contenteditable="true"><strong>Método:</strong> Falta de inventário cíclico e precificação sem markup real.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">O</span>
+                                    <span class="point-content" contenteditable="true"><strong>Mão de Obra:</strong> Mão de obra desalinhada em horários de pico e falta de controle individual.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">S</span>
+                                    <span class="point-content" contenteditable="true"><strong>Sistema:</strong> Ferramentas offline precárias e falta de banco de dados unificado.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="meta-container reveal">
+                            <div class="meta-item">
+                                <span class="meta-label">Método Analítico</span>
+                                <span class="meta-value">Diagrama de Causa e Efeito</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-panel">
+                        <div class="right-panel-content">
+                            <h2 class="right-title reveal-right">Estrutura de Análise</h2>
+                            
+                            <table class="custom-table-dark reveal-right">
+                                <thead>
+                                    <tr>
+                                        <th>Categoria</th>
+                                        <th>Causa Crítica</th>
+                                        <th>Solução Requisitada</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Medida</strong></td>
+                                        <td>Ausência de KPIs e faturamento cego</td>
+                                        <td>Relatórios dinâmicos integrados</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Material</strong></td>
+                                        <td>Desperdício e desvios de estoque</td>
+                                        <td>Controle de validade em lote</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Meio Ambiente</strong></td>
+                                        <td>Instabilidade na rede de internet</td>
+                                        <td>Sincronização offline robusta</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+               SLIDE 04: A PLATAFORMA INTEGRADA
+               =========================================== -->
+            <section class="slide" id="slide-4">
+                <div class="split-layout">
+                    <div class="left-panel">
+                        <div class="accent-bar"></div>
+                        <div class="brand">
+                            <div class="brand-icon">🛒</div>
+                            <div class="brand-name">mercado<span>One</span></div>
+                        </div>
+
+                        <div>
+                            <span class="eyebrow reveal">Arquitetura da Solução</span>
+                            <h2 class="title reveal">Ecossistema<br><span>Multiplataforma</span></h2>
+                            <p class="subtitle reveal">
+                                Dividimos a inteligência do sistema para atender tanto a operação pesada no caixa quanto a mobilidade estratégica do gestor.
+                            </p>
+                            <ul class="points-list">
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">🖥️</span>
+                                    <span class="point-content" contenteditable="true"><strong>PDV (Desktop Local):</strong> Operação de frente de caixa tradicional, extremamente rápida e imune a quedas de rede.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">📱</span>
+                                    <span class="point-content" contenteditable="true"><strong>Aplicativo Mobile:</strong> Painel gerencial e de auditoria para o administrador controlar estoque e financeiro do bolso.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">🌐</span>
+                                    <span class="point-content" contenteditable="true"><strong>Painel Web:</strong> Relatórios detalhados, controle de compras e configurações avançadas de retaguarda.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="meta-container reveal">
+                            <div class="meta-item">
+                                <span class="meta-label">Deploy</span>
+                                <span class="meta-value">Local Edge + Cloud Sync</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-panel">
+                        <div class="right-panel-content">
+                            <h2 class="right-title reveal-right">O App de Gestão</h2>
+                            
+                            <div class="screenshot-container reveal-right">
+                                <img src="exemplo1.jpeg" alt="Protótipo mercadoOne" class="screenshot-img">
+                                <div class="screenshot-caption">Protótipo Mobile do Administrador: Telas Iniciais, Estoque e Financeiro</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+               SLIDE 05: FRENTE DE CAIXA (PDV)
+               =========================================== -->
+            <section class="slide" id="slide-5">
+                <div class="split-layout">
+                    <div class="left-panel">
+                        <div class="accent-bar"></div>
+                        <div class="brand">
+                            <div class="brand-icon">🛒</div>
+                            <div class="brand-name">mercado<span>One</span></div>
+                        </div>
+
+                        <div>
+                            <span class="eyebrow reveal">Módulo Frente de Caixa</span>
+                            <h2 class="title reveal">Frente de Caixa (PDV)<br><span>Ultra-Resiliente</span></h2>
+                            <p class="subtitle reveal">
+                                O caixa é a artéria vital do mercado. Nossa engenharia foca em velocidade implacável e imunidade operacional total.
+                            </p>
+                            <ul class="points-list">
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">✓</span>
+                                    <span class="point-content" contenteditable="true"><strong>Velocidade Crítica (RNF-01):</strong> Processamento e leitura de cada item em menos de 1 segundo.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">✓</span>
+                                    <span class="point-content" contenteditable="true"><strong>Modo Offline Extremo (RNF-04):</strong> Até 8 horas de operação 100% autônoma sem rede, sincronizando dados de forma transparente.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">✓</span>
+                                    <span class="point-content" contenteditable="true"><strong>Segurança Antifraude (RN-07):</strong> Bloqueio automático de fechamento de caixa se houver sangrias não autorizadas pendentes.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="meta-container reveal">
+                            <div class="meta-item">
+                                <span class="meta-label">Disponibilidade</span>
+                                <span class="meta-value">99.5% Mínima (RNF-03)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-panel">
+                        <div class="right-panel-content">
+                            <h2 class="right-title reveal-right">Garantia Operacional</h2>
+                            
+                            <div class="stat-grid">
+                                <div class="stat-box reveal-right">
+                                    <div class="stat-number">&lt; 1s</div>
+                                    <div class="stat-label">Tempo de resposta no registro do item</div>
+                                </div>
+                                <div class="stat-box reveal-right">
+                                    <div class="stat-number">8h</div>
+                                    <div class="stat-label">Operação offline sem perda de dados</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+               SLIDE 06: CONTROLE DE ESTOQUE
+               =========================================== -->
+            <section class="slide" id="slide-6">
+                <div class="split-layout">
+                    <div class="left-panel">
+                        <div class="accent-bar"></div>
+                        <div class="brand">
+                            <div class="brand-icon">🛒</div>
+                            <div class="brand-name">mercado<span>One</span></div>
+                        </div>
+
+                        <div>
+                            <span class="eyebrow reveal">Módulo de Inventário</span>
+                            <h2 class="title reveal">Prevenção de Perdas<br><span>e Reposição Inteligente</span></h2>
+                            <p class="subtitle reveal">
+                                Um estoque bem gerido converte custo em liquidez. Nossa inteligência age de forma preditiva.
+                            </p>
+                            <ul class="points-list">
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">1</span>
+                                    <span class="point-content" contenteditable="true"><strong>Bloqueio de Venda (RN-03):</strong> Bloqueio instantâneo e automatizado no PDV para produtos vencidos.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">2</span>
+                                    <span class="point-content" contenteditable="true"><strong>Curva ABC Dinâmica (RN-08):</strong> Classificação em tempo real dos itens de maior giro para evitar rupturas de estoque.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">3</span>
+                                    <span class="point-content" contenteditable="true"><strong>Compra Sugerida (RF16):</strong> Ordens de compra pré-calculadas baseadas na média histórica e sazonalidade de saídas.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="meta-container reveal">
+                            <div class="meta-item">
+                                <span class="meta-label">Algoritmo</span>
+                                <span class="meta-value">Inventário Cíclico & Lotes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-panel">
+                        <div class="right-panel-content">
+                            <h2 class="right-title reveal-right">Visão do Estoque</h2>
+                            
+                            <div class="screenshot-container reveal-right">
+                                <img src="exemplo1.jpeg" alt="Tela de Estoque" class="screenshot-img" style="object-fit: cover; object-position: 50% 30%; height: 350px;">
+                                <div class="screenshot-caption">Visualização de Estoque Atual, Mínimo, Máximo e Margens de Lucro</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+               SLIDE 07: FINANCEIRO & INTELIGÊNCIA
+               =========================================== -->
+            <section class="slide" id="slide-7">
+                <div class="split-layout">
+                    <div class="left-panel">
+                        <div class="accent-bar"></div>
+                        <div class="brand">
+                            <div class="brand-icon">🛒</div>
+                            <div class="brand-name">mercado<span>One</span></div>
+                        </div>
+
+                        <div>
+                            <span class="eyebrow reveal">Inteligência Financeira</span>
+                            <h2 class="title reveal">Controle Absoluto de Margem<br><span>e Fluxo de Caixa</span></h2>
+                            <p class="subtitle reveal">
+                                A perda oculta ocorre na precificação cega. Unificamos o custo operacional de entrada com a saída de caixa real.
+                            </p>
+                            <ul class="points-list">
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">✓</span>
+                                    <span class="point-content" contenteditable="true"><strong>Markup Saudável (RN-01):</strong> O sistema proíbe o cadastro de preço de venda sem um custo de entrada de lote registrado.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">✓</span>
+                                    <span class="point-content" contenteditable="true"><strong>Visão de Resultado:</strong> Demonstração em tempo real de receitas, despesas e lucro líquido, com comparativos mensais.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">✓</span>
+                                    <span class="point-content" contenteditable="true"><strong>Gestão de Títulos (NF):</strong> Histórico de contas a pagar/receber com indicação visual de prazos e vencidos.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="meta-container reveal">
+                            <div class="meta-item">
+                                <span class="meta-label">Rastreabilidade</span>
+                                <span class="meta-value">Auditoria Financeira Completa</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-panel">
+                        <div class="right-panel-content">
+                            <h2 class="right-title reveal-right">Protótipo Financeiro</h2>
+                            
+                            <div class="screenshot-container reveal-right">
+                                <img src="exemplo2.jpeg" alt="Painel Financeiro" class="screenshot-img" style="object-fit: cover; object-position: 100% 50%; height: 350px;">
+                                <div class="screenshot-caption">Painel Financeiro: Fluxo de Caixa, Contas a Pagar/Receber e Gráfico de Contas</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+               SLIDE 08: RECURSOS HUMANOS & METAS
+               =========================================== -->
+            <section class="slide" id="slide-8">
+                <div class="split-layout">
+                    <div class="left-panel">
+                        <div class="accent-bar"></div>
+                        <div class="brand">
+                            <div class="brand-icon">🛒</div>
+                            <div class="brand-name">mercado<span>One</span></div>
+                        </div>
+
+                        <div>
+                            <span class="eyebrow reveal">Gestão de Equipes</span>
+                            <h2 class="title reveal">Metas por Operador &<br><span>Dimensionamento de Escalas</span></h2>
+                            <p class="subtitle reveal">
+                                Otimizamos a mão de obra baseado no fluxo histórico e incentivamos o desempenho individual com segurança.
+                            </p>
+                            <ul class="points-list">
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">1</span>
+                                    <span class="point-content" contenteditable="true"><strong>Privacidade Estrita:</strong> Operadores possuem visibilidade individualizada de metas. Sem cruzamento indevido de dados.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">2</span>
+                                    <span class="point-content" contenteditable="true"><strong>Escalas Inteligentes:</strong> Alocação ideal de operadores no caixa com base nas curvas históricas de vendas diárias.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">3</span>
+                                    <span class="point-content" contenteditable="true"><strong>Metas Dinâmicas:</strong> Desempenho diário, semanal ou mensal definidos pelo administrador de forma simplificada.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="meta-container reveal">
+                            <div class="meta-item">
+                                <span class="meta-label">Módulo RH</span>
+                                <span class="meta-value">Dimensionamento Preditivo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-panel">
+                        <div class="right-panel-content">
+                            <h2 class="right-title reveal-right">Metas e Desempenho</h2>
+                            
+                            <div class="stat-grid">
+                                <div class="stat-box reveal-right">
+                                    <div class="stat-number">100%</div>
+                                    <div class="stat-label">Privacidade dos dados individuais</div>
+                                </div>
+                                <div class="stat-box reveal-right">
+                                    <div class="stat-number">3 Níveis</div>
+                                    <div class="stat-label">Metas Diárias, Semanais ou Mensais</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+               SLIDE 09: REQUISITOS NÃO FUNCIONAIS
+               =========================================== -->
+            <section class="slide" id="slide-9">
+                <div class="split-layout">
+                    <div class="left-panel">
+                        <div class="accent-bar"></div>
+                        <div class="brand">
+                            <div class="brand-icon">🛒</div>
+                            <div class="brand-name">mercado<span>One</span></div>
+                        </div>
+
+                        <div>
+                            <span class="eyebrow reveal">Engenharia e Confiabilidade</span>
+                            <h2 class="title reveal">Arquitetura e<br><span>Requisitos Não Funcionais</span></h2>
+                            <p class="subtitle reveal">
+                                Construímos sobre pilares rígidos de software industrial. Velocidade, estabilidade e resiliência não são opcionais.
+                            </p>
+                            <ul class="points-list">
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">V</span>
+                                    <span class="point-content" contenteditable="true"><strong>RNF-01 (Velocidade):</strong> Transação em menos de 1s para processamento sem gargalos no caixa.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">D</span>
+                                    <span class="point-content" contenteditable="true"><strong>RNF-03 (Disponibilidade):</strong> 99.5% de uptime no banco de dados local para manter a operação sempre ativa.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">S</span>
+                                    <span class="point-content" contenteditable="true"><strong>RNF-04 (Autonomia):</strong> Tolerância a desastres e queda total de rede por até 8 horas sem perda de dados.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="meta-container reveal">
+                            <div class="meta-item">
+                                <span class="meta-label">Padrão Técnico</span>
+                                <span class="meta-value">Engenharia de Software Industrial</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-panel">
+                        <div class="right-panel-content">
+                            <h2 class="right-title reveal-right">Garantias Técnicas</h2>
+                            
+                            <table class="custom-table-dark reveal-right">
+                                <thead>
+                                    <tr>
+                                        <th>Métrica</th>
+                                        <th>Especificação</th>
+                                        <th>Padrão</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Banco de Dados</strong></td>
+                                        <td>SQLite Local + PostgreSQL Cloud</td>
+                                        <td>Híbrido</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Segurança</strong></td>
+                                        <td>Criptografia AES-256 local</td>
+                                        <td>Bancário</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Sincronização</strong></td>
+                                        <td>Delta-Sync bidirecional em segundo plano</td>
+                                        <td>Automático</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+               SLIDE 10: O CASO DE NEGÓCIO (INVESTIDORES)
+               =========================================== -->
+            <section class="slide" id="slide-10">
+                <div class="split-layout">
+                    <div class="left-panel">
+                        <div class="accent-bar"></div>
+                        <div class="brand">
+                            <div class="brand-icon">🛒</div>
+                            <div class="brand-name">mercado<span>One</span></div>
+                        </div>
+
+                        <div>
+                            <span class="eyebrow reveal">Viabilidade & Retorno</span>
+                            <h2 class="title reveal">Por que o mercadoOne<br><span>é um investimento ideal?</span></h2>
+                            <p class="subtitle reveal">
+                                O varejo de vizinhança é gigantesco e altamente fragmentado. Resolver a lucratividade deste setor tem alto valor comercial.
+                            </p>
+                            <ul class="points-list">
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">R</span>
+                                    <span class="point-content" contenteditable="true"><strong>Retorno de Investimento (ROI) Rápido:</strong> O sistema reduz perdas em mais de 30% já nos primeiros 90 dias de implantação.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">E</span>
+                                    <span class="point-content" contenteditable="true"><strong>Escalabilidade SaaS:</strong> Modelo de assinatura de baixo atrito para o comerciante e recorrência previsível para a plataforma.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">B</span>
+                                    <span class="point-content" contenteditable="true"><strong>Base Segura:</strong> Operação local robusta com custo de manutenção e servidores otimizado.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="meta-container reveal">
+                            <div class="meta-item">
+                                <span class="meta-label">Payback Estimado</span>
+                                <span class="meta-value">&lt; 3 Meses</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-panel">
+                        <div class="right-panel-content">
+                            <h2 class="right-title reveal-right">O Caso Financeiro</h2>
+                            
+                            <div class="stat-grid">
+                                <div class="stat-box reveal-right">
+                                    <div class="stat-number">+8%</div>
+                                    <div class="stat-label">Aumento estimado na Margem Líquida</div>
+                                </div>
+                                <div class="stat-box reveal-right">
+                                    <div class="stat-number">-35%</div>
+                                    <div class="stat-label">Redução imediata em perdas de validade</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+               SLIDE 11: ROADMAP & VALIDAÇÃO
+               =========================================== -->
+            <section class="slide" id="slide-11">
+                <div class="split-layout">
+                    <div class="left-panel">
+                        <div class="accent-bar"></div>
+                        <div class="brand">
+                            <div class="brand-icon">🛒</div>
+                            <div class="brand-name">mercado<span>One</span></div>
+                        </div>
+
+                        <div>
+                            <span class="eyebrow reveal">Roadmap de Lançamento</span>
+                            <h2 class="title reveal">Próximos Passos &<br><span>Plano de Validação</span></h2>
+                            <p class="subtitle reveal">
+                                Nosso caminho até a consolidação comercial é estruturado e validado em fases técnicas rígidas.
+                            </p>
+                            <ul class="points-list">
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">1</span>
+                                    <span class="point-content" contenteditable="true"><strong>Fase 01 - Homologação:</strong> Testes finais do PDV em ambiente sandbox com simulação de estresse de transações.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">2</span>
+                                    <span class="point-content" contenteditable="true"><strong>Fase 02 - Projeto Piloto:</strong> Implementação assistida em 3 supermercados locais selecionados para ajuste fino.</span>
+                                </li>
+                                <li class="point-item reveal">
+                                    <span class="point-bullet">3</span>
+                                    <span class="point-content" contenteditable="true"><strong>Fase 03 - Tração Comercial:</strong> Abertura do mercado e integração do software de retaguarda em escala.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="meta-container reveal">
+                            <div class="meta-item">
+                                <span class="meta-label">Estágio Atual</span>
+                                <span class="meta-value">Protótipo Funcional</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-panel">
+                        <div class="right-panel-content">
+                            <h2 class="right-title reveal-right">Timeline de Projeto</h2>
+                            
+                            <table class="custom-table-dark reveal-right">
+                                <thead>
+                                    <tr>
+                                        <th>Marco do Projeto</th>
+                                        <th>Prazo</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Definição de Requisitos</td>
+                                        <td>Mês 01</td>
+                                        <td><strong>Completo</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Prototipagem de UI</td>
+                                        <td>Mês 02</td>
+                                        <td><strong>Completo</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Desenvolvimento do PDV</td>
+                                        <td>Mês 03-05</td>
+                                        <td>Em Andamento</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Fase Piloto</td>
+                                        <td>Mês 06</td>
+                                        <td>Planejado</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===========================================
+               SLIDE 12: CONCLUSÃO & FECHAMENTO
+               =========================================== -->
+            <section class="slide" id="slide-12">
+                <div class="split-layout">
+                    <div class="left-panel">
+                        <div class="accent-bar"></div>
+                        <div class="brand">
+                            <div class="brand-icon">🛒</div>
+                            <div class="brand-name">mercado<span>One</span></div>
+                        </div>
+
+                        <div class="quote-container">
+                            <span class="eyebrow reveal">Conclusão</span>
+                            <blockquote class="quote-text reveal" contenteditable="true">
+                                "A baixa lucratividade em mercados de pequeno e médio porte não é consequência de um único fator isolado, mas sim da fragmentação de processos operacionais."
+                            </blockquote>
+                            <cite class="quote-author reveal" contenteditable="true">
+                                — mercadoOne: Engenharia de Software focada no Varejo.
+                            </cite>
+                        </div>
+
+                        <div class="meta-container reveal">
+                            <div class="meta-item">
+                                <span class="meta-label">Projeto</span>
+                                <span class="meta-value">mercadoOne 2026</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Fale Conosco</span>
+                                <span class="meta-value" contenteditable="true">contato@mercadoone.com</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-panel">
+                        <div class="right-panel-content">
+                            <h2 class="right-title reveal-right" contenteditable="true">Transforme a Gestão do Varejo</h2>
+                            
+                            <div class="right-card reveal-right">
+                                <span class="card-num">✓</span>
+                                <div class="card-text">
+                                    <h3 class="card-heading" contenteditable="true">Focado em Eficiência</h3>
+                                    <p class="card-desc" contenteditable="true">Substituindo o empirismo e a fragmentação por dados operacionais integrados.</p>
+                                </div>
+                            </div>
+
+                            <div class="right-card reveal-right">
+                                <span class="card-num">✓</span>
+                                <div class="card-text">
+                                    <h3 class="card-heading" contenteditable="true">Pronto para Investir</h3>
+                                    <p class="card-desc" contenteditable="true">Base tecnológica sólida e modelo comercial altamente escalável para investidores.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Toast Notification for Editor Saves -->
+    <div class="toast" id="saveToast">Apresentação salva com sucesso! 💾</div>
+
+    <!-- Presentation Controls Bottom-Right -->
+    <div class="deck-controls">
+        <button class="control-btn" id="prevBtn" title="Slide Anterior (Esquerda / PageUp)">◀</button>
+        <button class="control-btn" id="nextBtn" title="Próximo Slide (Direita / Espaço / PageDown)">▶</button>
+    </div>
+
+    <!-- ===========================================
+       7. PRESENTATION J KobJS CONTROLLER & EDITOR
+       =========================================== */ -->
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.stage = document.getElementById('deckStage');
+                this.progressBar = document.getElementById('progressBar');
+                this.slideCounter = document.getElementById('slideCounter');
+                this.prevBtn = document.getElementById('prevBtn');
+                this.nextBtn = document.getElementById('nextBtn');
+                
+                // Initialize modules
+                this.setupStageScale();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupClickControls();
+                this.setupInlineEditor();
+                
+                // Show initial slide
+                this.showSlide(0);
+            }
+
+            // Fixed 16:9 uniform stage scaling
+            setupStageScale() {
+                const scale = () => {
+                    const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+                    const x = (window.innerWidth - 1920 * factor) / 2;
+                    const y = (window.innerHeight - 1080 * factor) / 2;
+                    this.stage.style.transform = `translate(${x}px, ${y}px) scale(${factor})`;
+                };
+                scale();
+                window.addEventListener('resize', scale);
+            }
+
+            // Keyboard navigation setup
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    // Skip nav keys if editing text
+                    if (e.target.getAttribute('contenteditable') === 'true') {
+                        return;
+                    }
+
+                    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                        e.preventDefault();
+                        this.next();
+                    } else if (e.key === 'ArrowLeft' || e.key === 'Backspace' || e.key === 'PageUp') {
+                        e.preventDefault();
+                        this.prev();
+                    }
+                });
+            }
+
+            // Touch Swipe Support
+            setupTouchNav() {
+                let startX = 0;
+                let startY = 0;
+
+                document.addEventListener('touchstart', (e) => {
+                    startX = e.changedTouches[0].screenX;
+                    startY = e.changedTouches[0].screenY;
+                }, { passive: true });
+
+                document.addEventListener('touchend', (e) => {
+                    const diffX = e.changedTouches[0].screenX - startX;
+                    const diffY = e.changedTouches[0].screenY - startY;
+
+                    // Detect horizontal swipe with tolerance
+                    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 60) {
+                        if (diffX < 0) {
+                            this.next();
+                        } else {
+                            this.prev();
+                        }
+                    }
+                }, { passive: true });
+            }
+
+            // Click indicators setup
+            setupClickControls() {
+                this.prevBtn.addEventListener('click', () => this.prev());
+                this.nextBtn.addEventListener('click', () => this.next());
+            }
+
+            showSlide(index) {
+                // Bounds enforcement
+                this.currentSlide = Math.max(0, Math.min(index, this.slides.length - 1));
+                
+                this.slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === this.currentSlide);
+                    // Slight delay for visibility triggering animations nicely
+                    if (i === this.currentSlide) {
+                        setTimeout(() => {
+                            slide.classList.add('visible');
+                        }, 50);
+                    } else {
+                        slide.classList.remove('visible');
+                    }
+                });
+
+                // Update Progress bar & Slide numbers
+                const progressPercent = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = `${progressPercent}%`;
+                
+                this.slideCounter.textContent = `Slide ${this.currentSlide + 1} de ${this.slides.length}`;
+            }
+
+            next() {
+                this.showSlide(this.currentSlide + 1);
+            }
+
+            prev() {
+                this.showSlide(this.currentSlide - 1);
+            }
+
+            // Inline editor implementation
+            setupInlineEditor() {
+                const hotzone = document.querySelector('.edit-hotzone');
+                const editToggle = document.getElementById('editToggle');
+                const toast = document.getElementById('saveToast');
+                let hideTimeout = null;
+
+                // 1. Hover handlers for edit button toggle
+                hotzone.addEventListener('mouseenter', () => {
+                    clearTimeout(hideTimeout);
+                    editToggle.classList.add('show');
+                });
+                hotzone.addEventListener('mouseleave', () => {
+                    hideTimeout = setTimeout(() => {
+                        if (!editToggle.classList.contains('active')) editToggle.classList.remove('show');
+                    }, 400);
+                });
+
+                editToggle.addEventListener('mouseenter', () => {
+                    clearTimeout(hideTimeout);
+                });
+                editToggle.addEventListener('mouseleave', () => {
+                    hideTimeout = setTimeout(() => {
+                        if (!editToggle.classList.contains('active')) editToggle.classList.remove('show');
+                    }, 400);
+                });
+
+                // Helper to toggle editor state
+                const toggleEditor = () => {
+                    const isEditing = editToggle.classList.toggle('active');
+                    const editableElements = document.querySelectorAll('[contenteditable]');
+                    
+                    editableElements.forEach(el => {
+                        el.setAttribute('contenteditable', isEditing ? 'true' : 'false');
+                    });
+
+                    if (!isEditing) {
+                        // Saving on toggle off
+                        this.saveToStorage();
+                        showToast("Apresentação salva localmente! 💾");
+                    } else {
+                        showToast("Modo de edição ativo! Clique em qualquer texto para editar.");
+                    }
+                };
+
+                // 2. Click toggles edit mode
+                editToggle.addEventListener('click', toggleEditor);
+                hotzone.addEventListener('click', toggleEditor);
+
+                // 3. E key shortcut
+                document.addEventListener('keydown', (e) => {
+                    const activeElement = document.activeElement;
+                    const isTyping = activeElement && (
+                        activeElement.getAttribute('contenteditable') === 'true' || 
+                        activeElement.tagName === 'INPUT' || 
+                        activeElement.tagName === 'TEXTAREA'
+                    );
+
+                    if ((e.key === 'e' || e.key === 'E') && !isTyping) {
+                        e.preventDefault();
+                        toggleEditor();
+                    }
+
+                    // Ctrl+S keybind for quick saving
+                    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                        e.preventDefault();
+                        this.saveToStorage();
+                        showToast("Alterações salvas! 💾");
+                    }
+                });
+
+                // Toast notifier helper
+                function showToast(message) {
+                    toast.textContent = message;
+                    toast.classList.add('show');
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                    }, 3000);
+                }
+
+                // Load saved slides text if present
+                this.loadFromStorage();
+            }
+
+            // Save edits to localStorage
+            saveToStorage() {
+                const editableElements = document.querySelectorAll('[contenteditable]');
+                const contentData = [];
+                
+                editableElements.forEach((el, index) => {
+                    contentData.push({
+                        index: index,
+                        html: el.innerHTML
+                    });
+                });
+
+                localStorage.setItem('mercadoOne_deck_content', JSON.stringify(contentData));
+            }
+
+            // Load edits from localStorage
+            loadFromStorage() {
+                const saved = localStorage.getItem('mercadoOne_deck_content');
+                if (saved) {
+                    try {
+                        const contentData = JSON.parse(saved);
+                        const editableElements = document.querySelectorAll('[contenteditable]');
+                        
+                        contentData.forEach(item => {
+                            if (editableElements[item.index]) {
+                                editableElements[item.index].innerHTML = item.html;
+                            }
+                        });
+                    } catch (e) {
+                        console.error("Error loading presentation content from localStorage:", e);
+                    }
+                }
+            }
+        }
+
+        // Initialize presentation
+        document.addEventListener('DOMContentLoaded', () => {
+            window.presentation = new SlidePresentation();
+        });
+    </script>
+</body>
+</html>
